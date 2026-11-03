@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+/* ============================================================
+   POSSuper — Centralized Design Tokens
+   Brand palette:
+     Background #F4F9F6 · Primary #2A9D8F
+     Accent     #264653 · Text    #1D2D2A
+   Every color used in the app derives from these tokens.
+   ============================================================ */
+@theme {
+  /* Surfaces */
+  --color-background: #f4f9f6;
+  --color-surface: #ffffff;
+  --color-surface-muted: #e9f1ed;
+  --color-surface-sunken: #dfeae5;
+
+  /* Primary (accents, active states, highlights) */
+  --color-primary: #2a9d8f;
+  --color-primary-hover: #23867a;
+  --color-primary-active: #1d7066;
+  /* Deeper shade of the brand primary for filled controls that carry text.
+     White text on these surfaces reaches 5.1:1 (hover 6.4:1, active 8.0:1),
+     so primary buttons meet WCAG AA without leaving the POSSuper palette. */
+  --color-primary-strong: #1e7b6f;
+  --color-primary-strong-hover: #196a60;
+  --color-primary-strong-active: #155a52;
+  --color-primary-soft: #d7eee9;
+  --color-primary-tint: #ebf7f4;
+  --color-on-primary: #ffffff;
+
+  /* Accent (headers, navigation, emphasis) */
+  --color-accent: #264653;
+  --color-accent-hover: #1c3540;
+  --color-accent-soft: #dde7ea;
+  --color-accent-tint: #edf2f3;
+
+  /* Text */
+  --color-ink: #1d2d2a;
+  --color-ink-secondary: #506661;
+  --color-ink-muted: #7c918c;
+  --color-ink-inverse: #ffffff;
+
+  /* Lines */
+  --color-border: #d9e6e1;
+  --color-border-strong: #bed2cb;
+
+  /* System status (kept distinct from brand colors) */
+  --color-success: #2e8b62;
+  --color-success-soft: #e0f3ea;
+  --color-warning: #b7791f;
+  --color-warning-soft: #fcf1dc;
+  --color-danger: #bc4753;
+  --color-danger-soft: #fbeaec;
+  --color-info: #2e6f8e;
+  --color-info-soft: #e4f0f6;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-ink antialiased;
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    @apply bg-primary-soft text-accent;
+  }
+
+  /* Keep long rupiah values and IDs readable on small screens */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ============================================================
+   Shared UI primitives — single source of truth for components
+   ============================================================ */
+@layer components {
+  .page-shell {
+    @apply flex min-h-screen flex-col bg-background font-sans text-ink;
+  }
+
+  /* Accent header band with brand-tinted decoration */
+  .page-header {
+    @apply relative overflow-hidden rounded-b-[2rem] bg-accent px-6 pt-9 pb-10 text-center;
+  }
+
+  .page-header::before,
+  .page-header::after {
+    content: "";
+    @apply pointer-events-none absolute rounded-full bg-primary blur-3xl;
+  }
+
+  .page-header::before {
+    top: -3.5rem;
+    right: -2.5rem;
+    height: 11rem;
+    width: 11rem;
+    opacity: 0.28;
+  }
+
+  .page-header::after {
+    bottom: -5rem;
+    left: -3rem;
+    height: 10rem;
+    width: 10rem;
+    opacity: 0.14;
+  }
+
+  .page-header > * {
+    @apply relative z-10;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold tracking-tight text-white sm:text-3xl;
+  }
+
+  .page-subtitle {
+    @apply mt-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-[11px] font-semibold tracking-wide text-primary-soft;
+  }
+
+  .page-body {
+    @apply mx-auto flex w-full max-w-xl flex-grow flex-col gap-5 px-5 pt-6 pb-12;
+  }
+
+  .card {
+    @apply rounded-2xl border border-border bg-surface p-5 shadow-sm;
+  }
+
+  .card-soft {
+    @apply rounded-2xl border border-primary/20 bg-primary-tint p-5;
+  }
+
+  .section-title {
+    @apply mb-1 text-sm font-bold tracking-tight text-ink;
+  }
+
+  .section-desc {
+    @apply mb-3 text-[11px] font-medium leading-snug text-ink-muted;
+  }
+
+  .field-label {
+    @apply mb-2 block text-[11px] font-bold uppercase tracking-widest text-ink-secondary;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-border bg-background px-4 py-3.5 text-sm font-semibold text-ink shadow-inner transition placeholder:font-medium placeholder:text-ink-muted focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary-strong px-5 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary-strong-hover focus-visible:ring-2 focus-visible:ring-primary-strong focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none active:scale-[0.99] active:bg-primary-strong-active disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-3.5 text-sm font-bold text-ink-secondary shadow-sm transition hover:border-border-strong hover:bg-surface-muted hover:text-ink focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none active:scale-[0.99];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-ink-secondary transition hover:bg-surface-muted hover:text-ink focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none;
+  }
+
+  .icon-tile {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-hover;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-lg bg-primary-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-hover;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-accent/60 p-4 backdrop-blur-sm;
+  }
+
+  .modal-panel {
+    @apply flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xl;
+  }
+
+  .empty-state {
+    @apply flex flex-col items-center justify-center rounded-2xl border border-dashed border-border-strong bg-surface/70 p-8 text-center;
+  }
+
+  .divider-dashed {
+    @apply border-t border-dashed border-border;
+  }
+}

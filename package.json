@@ -17,6 +17,7 @@
     "@capacitor/filesystem": "^8.1.5",
     "@capacitor/share": "^8.0.3",
     "@capacitor/splash-screen": "^8.0.2",
+    "@delicity/capacitor-thermal-printer": "^8.5.5",
     "@tailwindcss/vite": "^4.3.3",
     "dayjs": "^1.11.23",
     "dexie": "^4.4.7",
