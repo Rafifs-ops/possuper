@@ -1114,9 +1114,9 @@ POSSuper versi website dapat di-install sebagai PWA langsung dari browser. PWA *
 | File | Fungsi |
 |---|---|
 | `public/manifest.webmanifest` | Nama, `short_name`, `start_url`, `scope`, `display: standalone`, warna tema, dan icon |
-| `public/icons/possuper-192.png` | Icon PWA 192×192 |
-| `public/icons/possuper-512.png` | Icon PWA 512×512 |
-| `public/icons/possuper-maskable-512.png` | Icon maskable 512×512 (logo berada di safe zone, tidak terpotong) |
+| `public/icons/icon-192.png` | Icon PWA 192×192 |
+| `public/icons/icon-512.png` | Icon PWA 512×512 |
+| `public/icons/icon-maskable-512.png` | Icon maskable 512×512 (logo berada di safe zone, tidak terpotong) |
 | `public/icons/apple-touch-icon-180.png` | Icon iOS (Add to Home Screen) |
 | `vite.config.js` | Konfigurasi `vite-plugin-pwa` (Workbox `generateSW`) |
 | `src/main.js` | Registrasi service worker via `virtual:pwa-register`, hanya di web |
