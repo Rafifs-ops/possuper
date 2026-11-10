@@ -219,7 +219,7 @@
                                 class="mt-6 mb-2 border-b border-border pb-2 text-base font-bold text-ink">
                                 6. Informasi Kontak</h4>
                             <p class="mb-4">Jika Anda memiliki pertanyaan atau komentar tentang Kebijakan Privasi ini,
-                                silakan hubungi kami di: <a href="mailto:windysuyono06@gmail.com"
+                                silakan hubungi kami di: <a href="mailto:rafifebrians150206@gmail.com"
                                     class="ml-1 rounded bg-primary-soft px-2 py-0.5 font-bold text-primary-hover hover:underline">windysuyono06@gmail.com</a>.
                             </p>
                         </template>
@@ -268,19 +268,9 @@
                                     kelalaian pengguna.
                                 </li>
                             </ul>
-
                             <h4
                                 class="mt-6 mb-2 border-b border-border pb-2 text-base font-bold text-ink">
-                                4. Hak Kekayaan Intelektual</h4>
-                            <p class="mb-4">Aplikasi, termasuk namun tidak terbatas pada desain, kode sumber (source
-                                code), logo, dan teks, adalah milik Rafi Febrian Suprapto sebagai developer, Windy
-                                Permata Suyono sebagai product owner, dan dilindungi oleh hukum hak cipta dan kekayaan
-                                intelektual. Anda tidak diperbolehkan untuk menyalin, memodifikasi, mendistribusikan,
-                                atau merekayasa balik (reverse engineer) Aplikasi tanpa izin tertulis dari kami.</p>
-
-                            <h4
-                                class="mt-6 mb-2 border-b border-border pb-2 text-base font-bold text-ink">
-                                5. Penyangkalan Jaminan</h4>
+                                4. Penyangkalan Jaminan</h4>
                             <p class="mb-4">Aplikasi ini disediakan "APA ADANYA" (as is) dan "SEBAGAIMANA TERSEDIA" (as
                                 available). Kami tidak memberikan jaminan bahwa Aplikasi akan bebas dari bug, kesalahan
                                 (error), atau gangguan. Kami tidak menjamin bahwa perhitungan finansial dalam aplikasi
@@ -289,7 +279,7 @@
 
                             <h4
                                 class="mt-6 mb-2 border-b border-border pb-2 text-base font-bold text-ink">
-                                6. Batasan Tanggung Jawab</h4>
+                                5. Batasan Tanggung Jawab</h4>
                             <p class="mb-4">Sejauh diizinkan oleh hukum, developer dan product owner tidak akan
                                 bertanggung jawab atas kerusakan langsung, tidak langsung, insidental, atau
                                 konsekuensial, termasuk namun tidak terbatas pada kerugian laba, kerugian bisnis, atau
@@ -298,10 +288,10 @@
 
                             <h4
                                 class="mt-6 mb-2 border-b border-border pb-2 text-base font-bold text-ink">
-                                7. Kontak</h4>
+                                6. Kontak</h4>
                             <p class="mb-4">Untuk pertanyaan terkait Syarat dan Ketentuan ini, silakan hubungi kami
-                                melalui: <a href="mailto:windysuyono06@gmail.com"
-                                    class="ml-1 rounded bg-primary-soft px-2 py-0.5 font-bold text-primary-hover hover:underline">windysuyono06@gmail.com</a>.
+                                melalui: <a href="mailto:rafifebrians150206@gmail.com"
+                                    class="ml-1 rounded bg-primary-soft px-2 py-0.5 font-bold text-primary-hover hover:underline">rafifebrians150206@gmail.com</a>.
                             </p>
                         </template>
                     </div>
