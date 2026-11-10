@@ -108,6 +108,10 @@
                             </svg>
                         </button>
                     </div>
+
+                    <p class="w-full text-[10px] font-medium leading-relaxed text-ink-muted">
+                        Penambahan stok otomatis dicatat sebagai kas keluar (jumlah × HPP) di Riwayat Kas.
+                    </p>
                 </div>
             </div>
 
@@ -244,7 +248,7 @@ import { useProducts } from '../composables/useProduct';
 import { useToast } from '../composables/useToast';
 
 // Import deleteProduct dan updateProductStock dari composable
-const { productList, loadProducts, deleteProduct, ubahStokAman, updateProductDetails } = useProducts();
+const { productList, loadProducts, deleteProduct, tambahStokDenganKas, ubahStokAman, updateProductDetails } = useProducts();
 const { showToast } = useToast();
 
 // State untuk search dan pagination
@@ -372,7 +376,10 @@ const simpanEdit = async () => {
 
 const tambahStok = async (item) => {
     try {
-        await ubahStokAman(item.id, 1);
+        const kasKeluar = await tambahStokDenganKas(item.id, 1);
+        if (kasKeluar) {
+            showToast(`Stok ${item.nama} bertambah 1. Kas keluar Rp ${Math.round(kasKeluar.nominal).toLocaleString('id-ID')} tercatat di Riwayat Kas.`, 'success');
+        }
     } catch (e) {
         console.error('Gagal menambah stok:', e);
         showToast('Gagal menambah stok.', 'error');

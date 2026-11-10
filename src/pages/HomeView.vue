@@ -58,6 +58,70 @@
 
             </div>
 
+            <!-- Install PWA (hanya web, belum terinstall) -->
+            <section v-if="canShowInstall" aria-labelledby="install-pwa-title"
+                class="mt-4 rounded-2xl border border-primary/25 bg-primary-tint p-4 shadow-sm sm:p-5">
+                <div class="flex items-start gap-3">
+                    <img :src="logoMark" alt=""
+                        class="h-11 w-11 shrink-0 rounded-xl bg-background object-contain p-1.5 shadow-sm" />
+                    <div class="min-w-0 flex-grow">
+                        <h3 id="install-pwa-title" class="text-sm font-bold leading-tight text-ink">Install POSSuper</h3>
+                        <p class="mt-1 text-[11px] font-medium leading-relaxed text-ink-muted">
+                            Akses POSSuper lebih praktis langsung dari layar perangkatmu. Install sebagai aplikasi dan
+                            gunakan kembali tanpa harus membuka tab browser.
+                        </p>
+
+                        <button v-if="canPromptInstall" type="button" @click="installPwa" :disabled="isInstalling"
+                            class="btn-primary mt-3 w-full rounded-xl py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 3v12m0 0l4-4m-4 4l-4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                            </svg>
+                            {{ isInstalling ? 'Memulai instalasi...' : 'Install' }}
+                        </button>
+                        <button v-else type="button" @click="toggleManualInstallHint"
+                            class="btn-secondary mt-3 w-full rounded-xl py-2.5 text-sm">
+                            {{ showManualInstallHint ? 'Tutup petunjuk' : 'Lihat cara install' }}
+                        </button>
+
+                        <p v-if="!canPromptInstall && showManualInstallHint"
+                            class="mt-2.5 rounded-xl bg-background/70 p-3 text-[11px] font-medium leading-relaxed text-ink-secondary">
+                            {{ installHint }}
+                        </p>
+                        <p v-if="installError" class="mt-2 text-[11px] font-semibold text-danger">{{ installError }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Promosi aplikasi Android (hanya di web/PWA, bukan aplikasi native) -->
+            <section v-if="showAndroidDownload" aria-labelledby="android-app-title"
+                class="relative mt-4 overflow-hidden rounded-2xl bg-accent p-4 text-white shadow-sm sm:p-5">
+                <div class="pointer-events-none absolute -right-10 -bottom-12 h-32 w-32 rounded-full bg-white/10"></div>
+                <div class="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M17.6 9.48l1.84-3.18a.38.38 0 10-.66-.38l-1.86 3.22A11.4 11.4 0 0012 8.2c-1.79 0-3.48.36-4.92.94L5.22 5.92a.38.38 0 10-.66.38L6.4 9.48A10.9 10.9 0 001 18h22a10.9 10.9 0 00-5.4-8.52zM7 15.25a1.05 1.05 0 110-2.1 1.05 1.05 0 010 2.1zm10 0a1.05 1.05 0 110-2.1 1.05 1.05 0 010 2.1z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0 flex-grow">
+                        <h3 id="android-app-title" class="text-sm font-bold leading-tight">Sudah tersedia aplikasi Android POSSuper!</h3>
+                        <p class="mt-1 text-[11px] font-medium leading-relaxed text-white/85">
+                            Gunakan POSSuper lebih praktis melalui smartphone Android. Download aplikasi Android dan
+                            nikmati kemudahan mengelola bisnis langsung dari perangkatmu.
+                        </p>
+                    </div>
+                    <a :href="ANDROID_APK_URL" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-background px-4 py-2.5 text-xs font-bold text-accent shadow-sm transition hover:bg-white active:scale-[0.99] sm:self-center">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download Android APK
+                    </a>
+                </div>
+            </section>
+
             <!-- Tentang aplikasi (tautan footer) -->
             <RouterLink to="/about"
                 class="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none active:scale-[0.99]">
@@ -81,14 +145,47 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import { Capacitor } from '@capacitor/core';
 import { useStoreProfile } from '../composables/useStoreProfile';
 import { useToast } from '../composables/useToast';
+import { usePwaInstall } from '../composables/usePwaInstall';
 import logoMark from '/possuper_logo.png';
+
+// Folder Google Drive berisi APK Android POSSuper (link resmi, jangan diubah).
+const ANDROID_APK_URL = 'https://drive.google.com/drive/folders/1-weQy7-INxHfwsDavmZi8SxbSjBtOaZZ?usp=sharing';
 
 const router = useRouter();
 const { isStoreProfileComplete } = useStoreProfile();
 const { showToast } = useToast();
+const {
+    isStandalone,
+    canShowInstall,
+    canPromptInstall,
+    isInstalling,
+    installError,
+    installHint,
+    showManualInstallHint,
+    toggleManualInstallHint,
+    promptInstall
+} = usePwaInstall();
+
+// Banner download APK hanya untuk pengunjung web di tab browser. Disembunyikan
+// di aplikasi Android native dan saat POSSuper sudah berjalan sebagai PWA
+// standalone (pengguna sudah memakai aplikasi web terpasang, bukan APK).
+const showAndroidDownload = computed(
+    () => !Capacitor.isNativePlatform() && !isStandalone.value
+);
+
+const installPwa = async () => {
+    const { outcome } = await promptInstall();
+    if (outcome === 'dismissed') {
+        showToast('Instalasi dibatalkan. Kamu bisa mencoba lagi kapan saja.', 'info', 3500);
+    } else if (outcome === 'error') {
+        showToast(installError.value || 'Instalasi tidak dapat dimulai.', 'error', 4000);
+    }
+};
 
 const navigasiKe = (path) => {
     if (path === '/scan' && !isStoreProfileComplete.value) {

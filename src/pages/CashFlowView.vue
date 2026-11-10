@@ -216,6 +216,12 @@
                                             Hapus
                                         </button>
                                     </div>
+                                    <RouterLink
+                                        v-else-if="['produk_baru', 'penambahan_stok'].includes(entry.sumber)"
+                                        to="/list"
+                                        class="text-[10px] font-bold text-info transition hover:underline">
+                                        Ke Daftar Produk
+                                    </RouterLink>
                                     <RouterLink v-else-if="entry.sumber === 'pengeluaran'" to="/biaya"
                                         class="text-[10px] font-bold text-info transition hover:underline">
                                         Ke Input Biaya

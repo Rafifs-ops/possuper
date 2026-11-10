@@ -34,14 +34,21 @@ export const AKTIVITAS_LABELS = {
 export const SUMBER_TRANSAKSI = {
     PENJUALAN: 'penjualan',
     PENGELUARAN: 'pengeluaran',
-    MANUAL: 'manual'
+    MANUAL: 'manual',
+    PRODUK_BARU: 'produk_baru',
+    PENAMBAHAN_STOK: 'penambahan_stok'
 };
 
 export const SUMBER_LABELS = {
     penjualan: 'Penjualan',
     pengeluaran: 'Pengeluaran',
-    manual: 'Manual'
+    manual: 'Manual',
+    produk_baru: 'Pembelian Stok',
+    penambahan_stok: 'Penambahan Stok'
 };
+
+/** Sumber kas otomatis yang tetap disimpan di tabel kasManual. */
+const SUMBER_KAS_OTOMATIS = [SUMBER_TRANSAKSI.PRODUK_BARU, SUMBER_TRANSAKSI.PENAMBAHAN_STOK];
 
 /** Kategori transaksi kas manual per tipe dan aktivitas. */
 export const KATEGORI_KAS_MANUAL = {
@@ -213,11 +220,88 @@ export function kasManualToCashEntries(manualList) {
         kategori: m.kategori || 'pengeluaran_lain',
         keterangan: m.keterangan || 'Transaksi kas',
         nominal: Number(m.nominal) || 0,
-        sumber: SUMBER_TRANSAKSI.MANUAL,
+        // Transaksi otomatis (produk baru / penambahan stok) tetap disimpan di
+        // kasManual, tetapi sumbernya ditandai agar bisa dibedakan (dan tidak
+        // bisa diedit/dihapus sebagai transaksi manual biasa).
+        sumber: SUMBER_KAS_OTOMATIS.includes(m.sumber)
+            ? m.sumber
+            : SUMBER_TRANSAKSI.MANUAL,
         sumberId: m.id,
+        produkId: m.sumberId || null,
         deskripsi: m.catatan || 'Catatan kas manual',
         metodePembayaran: m.metodePembayaran || ''
     }));
+}
+
+/* ------------------------------------------------------------------ */
+/* Pembelian stok awal dari produk baru                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Nilai persediaan = quantity × hpp per unit.
+ * Nilai nol/negatif tidak dicatat sebagai kas keluar.
+ */
+export function hitungNilaiPersediaan(quantity, hpp) {
+    const qty = Number(quantity) || 0;
+    const hppPerUnit = Number(hpp) || 0;
+    if (qty <= 0 || hppPerUnit <= 0) return 0;
+    return Math.round(qty * hppPerUnit);
+}
+
+/** Alias lama untuk nilai stok awal produk baru. */
+export const hitungNilaiStokAwal = hitungNilaiPersediaan;
+
+/**
+ * Susun record kasManual untuk pembelian stok awal produk baru.
+ * Mengembalikan null bila nilai stok awal 0 (tidak ada kas keluar).
+ *
+ * Catatan: HPP pembelian persediaan TIDAK masuk laporan keuntungan; laporan
+ * keuntungan tetap memakai HPP dari barang yang benar-benar terjual.
+ */
+export function buildPembelianStokAwalEntry(produk, tanggal = null) {
+    const nominal = hitungNilaiPersediaan(produk?.quantity, produk?.hpp);
+    if (nominal <= 0) return null;
+
+    const nama = (produk?.nama || '').trim();
+    return {
+        tanggal: normalizeTanggal(tanggal) || dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        tipe: TIPE_KAS.KELUAR,
+        aktivitas: AKTIVITAS_KAS.OPERASI,
+        kategori: 'pembelian_persediaan',
+        keterangan: nama ? `Pembelian stok awal - ${nama}` : 'Pembelian stok awal produk baru',
+        nominal,
+        metodePembayaran: 'tunai',
+        catatan: 'Otomatis dari pencatatan produk baru',
+        sumber: SUMBER_TRANSAKSI.PRODUK_BARU,
+        sumberId: produk?.id ?? null,
+        createdAt: new Date().toISOString()
+    };
+}
+
+/**
+ * Susun record kasManual untuk penambahan stok produk lama.
+ * Hanya penambahan (jumlah > 0) yang dicatat; koreksi/pengurangan stok tidak.
+ * Mengembalikan null bila jumlah atau HPP tidak valid.
+ */
+export function buildPenambahanStokEntry(produk, jumlah, tanggal = null) {
+    const tambahan = Number(jumlah) || 0;
+    const nominal = hitungNilaiPersediaan(tambahan, produk?.hpp);
+    if (tambahan <= 0 || nominal <= 0) return null;
+
+    const nama = (produk?.nama || '').trim();
+    return {
+        tanggal: normalizeTanggal(tanggal) || dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        tipe: TIPE_KAS.KELUAR,
+        aktivitas: AKTIVITAS_KAS.OPERASI,
+        kategori: 'pembelian_persediaan',
+        keterangan: nama ? `Penambahan stok ${tambahan} - ${nama}` : `Penambahan stok ${tambahan}`,
+        nominal,
+        metodePembayaran: 'tunai',
+        catatan: 'Otomatis dari penambahan stok produk',
+        sumber: SUMBER_TRANSAKSI.PENAMBAHAN_STOK,
+        sumberId: produk?.id ?? null,
+        createdAt: new Date().toISOString()
+    };
 }
 
 /** Gabungkan semua sumber, urutkan terbaru, tambahkan running balance. */

@@ -85,6 +85,17 @@
                     </div>
                 </div>
 
+                <!-- Info: nilai stok awal otomatis masuk arus kas -->
+                <div class="rounded-xl border border-primary/25 bg-primary-tint p-3.5">
+                    <p class="text-[11px] font-medium leading-relaxed text-ink-secondary">
+                        Nilai stok awal (jumlah barang × HPP) akan otomatis dicatat sebagai kas keluar pada
+                        laporan arus kas.
+                    </p>
+                    <p v-if="totalStokAwal > 0" class="mt-2 text-xs font-bold tabular-nums text-primary-hover">
+                        Total kas keluar: Rp {{ fmtRp(totalStokAwal) }}
+                    </p>
+                </div>
+
                 <!-- Tombol Submit -->
                 <button type="submit" class="btn-primary mt-1 w-full rounded-2xl py-4">
                     Simpan Data Produk
@@ -108,14 +119,14 @@
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { CapacitorBarcodeScanner } from '@capacitor/barcode-scanner';
 import { useProducts } from '../composables/useProduct';
 import { useToast } from '../composables/useToast';
 
 const route = useRoute();
-const { addProduct, getProduct } = useProducts();
+const { addProductWithStokAwal, getProduct } = useProducts();
 const { showToast } = useToast();
 
 const form = reactive({
@@ -125,6 +136,16 @@ const form = reactive({
     harga: '',
     quantity: ''
 });
+
+// Nilai stok awal yang akan dicatat otomatis sebagai kas keluar (quantity × HPP).
+const totalStokAwal = computed(() => {
+    const qty = Number(form.quantity) || 0;
+    const hpp = Number(form.hpp) || 0;
+    if (qty <= 0 || hpp <= 0) return 0;
+    return Math.round(qty * hpp);
+});
+
+const fmtRp = (n) => Math.round(n || 0).toLocaleString('id-ID');
 
 // Menangkap ID jika user dialihkan dari halaman "Cek Produk" (ScanView.vue)
 onMounted(() => {
@@ -166,8 +187,8 @@ const simpanProduk = async () => {
             return; // Hentikan eksekusi
         }
 
-        // Tambahkan await di sini
-        await addProduct({
+        // Produk baru disimpan bersama kas keluar pembelian stok awal (atomik).
+        const kasKeluar = await addProductWithStokAwal({
             id: form.id,
             nama: form.nama,
             hpp: Number(form.hpp),
@@ -175,7 +196,12 @@ const simpanProduk = async () => {
             quantity: Number(form.quantity),
             createdAt: Date.now()
         });
-        showToast(`Barang ${form.nama} berhasil disimpan!`, 'success');
+        showToast(
+            kasKeluar
+                ? `Barang ${form.nama} berhasil disimpan! Kas keluar Rp ${fmtRp(kasKeluar.nominal)} tercatat di Riwayat Kas.`
+                : `Barang ${form.nama} berhasil disimpan!`,
+            'success'
+        );
     } catch (error) {
         console.error('Gagal menyimpan produk:', error);
         showToast('Gagal menyimpan produk!', 'error');
